@@ -1,5 +1,6 @@
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Arrays;
@@ -9,7 +10,7 @@ import java.util.Scanner;
 
 public class huffD {
     public static void main(String[] args) throws IOException {
-        File encodingTxt = new File("Encoding.txt");
+        File encodingTxt = new File("encoding.txt");
         Map<String, String> encoding = new HashMap<>();
 
         Scanner scanner = new Scanner(encodingTxt);
@@ -19,26 +20,40 @@ public class huffD {
         }
         scanner.close();
 
-        File book = new File("encoded_book.txt");
-        FileInputStream fileInputStream = new FileInputStream(book);
-        // String bookString = "";
-        // scanner = new Scanner(book);
-        // while (scanner.hasNext()) {
-        //     String current = scanner.nextLine();
-        //     bookString += current;
-        //     if (scanner.hasNext()) {
-        //         bookString += "\n";
-        //     }
-        // }
-        // scanner.close();
-        // byte[] decodedData = Base64.getDecoder().decode(bookString);
-        String decodedBinaryString = toBinaryString(fileInputStream.readAllBytes());
-        fileInputStream.close();
-        writeDecodedBook(decodedBinaryString, encoding);
+        String pathToFile = args[0];
+        String pathToOutput = "";
+        if (args.length > 1) {
+            pathToOutput = args[1];
+        }
+
+        try {
+            File book = new File(pathToFile);
+            FileInputStream fileInputStream = new FileInputStream(book);
+            String decodedBinaryString = toBinaryString(fileInputStream.readAllBytes());
+            fileInputStream.close();
+            writeDecodedBook(decodedBinaryString, encoding, book.getName().split("\\.")[0], pathToOutput);
+        } catch (IOException e) {
+            try {
+                File dir = new File(pathToFile);
+                File[] directoryListing = dir.listFiles();
+                if (directoryListing != null) {
+                    for (File child : directoryListing) {
+                        FileInputStream fileInputStream = new FileInputStream(child);
+                        String decodedBinaryString = toBinaryString(fileInputStream.readAllBytes());
+                        fileInputStream.close();
+                        writeDecodedBook(decodedBinaryString, encoding, child.getName().split("\\.")[0], pathToOutput);
+                    }
+                }
+            } catch (FileNotFoundException f) {
+                System.out.println(
+                        "The file or directory you passed to be decompressed hasn't been found. Please make sure the file exists and that the path to the file is correct");
+                System.exit(1);
+            }
+        }
 
     }
 
-    private static void writeDecodedBook(String book, Map<String, String> encoding) {
+    private static void writeDecodedBook(String book, Map<String, String> encoding, String name, String pathToOutput) {
         String[] decoded = new String[book.length()];
         int i = 0;
         int start = 0;
@@ -58,16 +73,18 @@ public class huffD {
                 end += 1;
             }
         }
-        System.out.println(start);
-        System.out.println(end);
-        System.out.println(book.length());
-
         String[] toWriteFinal = Arrays.copyOfRange(decoded, 0, i);
         try {
-            FileWriter myWriter = new FileWriter("decoded_book.txt");
+            if (!pathToOutput.isEmpty()) {
+                File theDir = new File(pathToOutput);
+                if (!theDir.exists()) {
+                    theDir.mkdirs();
+                }
+            }
+            FileWriter myWriter = new FileWriter(pathToOutput + "\\" + name + ".txt");
             myWriter.write(String.join("", toWriteFinal));
             myWriter.close();
-            System.out.println("Successfully wrote to the file.");
+            System.out.printf("Successfully wrote the decompressed %s file.\n", name);
         } catch (IOException e) {
             System.out.println("An error occurred.");
             e.printStackTrace();

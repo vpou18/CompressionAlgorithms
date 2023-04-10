@@ -28,16 +28,42 @@ class Pair<F, S> {
 
 }
 
-class GenerateHuffDict {
+class HuffCode {
     public static void main(String[] args) throws FileNotFoundException {
-        File dir = new File("books");
-        File[] directoryListing = dir.listFiles();
         Map<String, Integer> dictionary = new HashMap<>();
-        dictionary.put(String.valueOf(Integer.valueOf('\n')), 0);
-        if (directoryListing != null) {
-            for (File child : directoryListing) {
-                System.out.println(child.getName());
-                Scanner sc = new Scanner(child);
+
+        String pathToFile = args[0];
+        try {
+            File dir = new File(pathToFile);
+            File[] directoryListing = dir.listFiles();
+            dictionary.put(String.valueOf(Integer.valueOf('\n')), 0);
+            if (directoryListing != null) {
+                for (File child : directoryListing) {
+                    System.out.println(child.getName());
+                    Scanner sc = new Scanner(child);
+                    while (sc.hasNextLine()) {
+                        for (Character c : sc.nextLine().toCharArray()) {
+                            String curr = c + "";
+                            if (!(c > 32 && c < 128)) {
+                                curr = String.valueOf(Integer.valueOf(c));
+                            }
+                            if (!dictionary.containsKey(curr)) {
+                                dictionary.put(curr, 0);
+                            }
+                            dictionary.put(curr, dictionary.get(curr) + 1);
+                        }
+                        if (sc.hasNextLine()) {
+                            dictionary.put(String.valueOf(Integer.valueOf('\n')),
+                                    dictionary.get(String.valueOf(Integer.valueOf('\n'))) + 1);
+                        }
+                    }
+                    sc.close();
+                }
+            }
+        } catch (FileNotFoundException e) {
+            try {
+                File file = new File(pathToFile);
+                Scanner sc = new Scanner(file);
                 while (sc.hasNextLine()) {
                     for (Character c : sc.nextLine().toCharArray()) {
                         String curr = c + "";
@@ -55,24 +81,28 @@ class GenerateHuffDict {
                     }
                 }
                 sc.close();
+            } catch (FileNotFoundException f) {
+                System.out.println(
+                        "The file or directory you passed to for dictionary generation hasn't been found. Please make sure the file exists and that the path to the file is correct");
+                System.exit(1);
             }
         }
 
         try {
-            FileWriter myWriter = new FileWriter("HuffDict.txt");
+            FileWriter myWriter = new FileWriter("huffDict.txt");
             for (Map.Entry<String, Integer> entry : dictionary.entrySet()) {
                 String key = entry.getKey();
                 Integer val = entry.getValue();
                 myWriter.write(String.format("%s %d\n", key, val));
             }
             myWriter.close();
-            System.out.println("Successfully wrote to the file.");
+            System.out.println("Successfully wrote the huffDict file.");
         } catch (IOException e) {
             System.out.println("An error occurred.");
             e.printStackTrace();
         }
 
-        File dictionaryTxt = new File("HuffDict.txt");
+        File dictionaryTxt = new File("huffDict.txt");
         PriorityQueue<Pair<String, Integer>> symbolAndFrequency = new PriorityQueue<>(
                 (a, b) -> (a.getSecond().compareTo(b.getSecond())));
 
@@ -84,14 +114,14 @@ class GenerateHuffDict {
         scanner.close();
         Map<String, String> encoding = generateEncoding(symbolAndFrequency);
         try {
-            FileWriter myWriter = new FileWriter("Encoding.txt");
+            FileWriter myWriter = new FileWriter("encoding.txt");
             for (Map.Entry<String, String> entry : encoding.entrySet()) {
                 String key = entry.getKey();
                 String val = entry.getValue();
                 myWriter.write(String.format("%s %s\n", key, val));
             }
             myWriter.close();
-            System.out.println("Successfully wrote to the file.");
+            System.out.println("Successfully wrote the encodings file.");
         } catch (IOException e) {
             System.out.println("An error occurred.");
             e.printStackTrace();

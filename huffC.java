@@ -1,16 +1,20 @@
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
 
 public class huffC {
     public static void main(String[] args) throws FileNotFoundException {
-        File encodingTxt = new File("Encoding.txt");
+        String pathToFile = args[0];
+        String pathToOutput = "";
+        if (args.length > 1) {
+            pathToOutput = args[1];
+        }
+
+        File encodingTxt = new File("encoding.txt");
         Map<String, String> encoding = new HashMap<>();
 
         Scanner scanner = new Scanner(encodingTxt);
@@ -20,21 +24,48 @@ public class huffC {
         }
         scanner.close();
 
-        File book = new File("books\\The_Count_of_Monte_Cristo.txt");
-        String bookString = "";
-        scanner = new Scanner(book);
-        while (scanner.hasNext()) {
-            String current = scanner.nextLine();
-            bookString += current;
-            if (scanner.hasNext()) {
-                bookString += "\n";
+        try {
+            File book = new File(pathToFile);
+            scanner = new Scanner(book);
+            String bookString = "";
+            while (scanner.hasNext()) {
+                String current = scanner.nextLine();
+                bookString += current;
+                if (scanner.hasNext()) {
+                    bookString += "\n";
+                }
+            }
+            scanner.close();
+            writeEncodedBook(bookString.toCharArray(), encoding, book.getName().split("\\.")[0], pathToOutput);
+        } catch (FileNotFoundException e) {
+            try {
+                File dir = new File(pathToFile);
+                File[] directoryListing = dir.listFiles();
+                if (directoryListing != null) {
+                    for (File child : directoryListing) {
+                        scanner = new Scanner(child);
+                        String bookString = "";
+                        while (scanner.hasNext()) {
+                            String current = scanner.nextLine();
+                            bookString += current;
+                            if (scanner.hasNext()) {
+                                bookString += "\n";
+                            }
+                        }
+                        scanner.close();
+                        writeEncodedBook(bookString.toCharArray(), encoding, child.getName().split("\\.")[0],
+                                pathToOutput);
+                    }
+                }
+            } catch (FileNotFoundException f) {
+                System.out.println(
+                        "The file or directory you passed to be compressed hasn't been found. Please make sure the file exists and that the path to the file is correct");
+                System.exit(1);
             }
         }
-        scanner.close();
-        writeEncodedBook(bookString.toCharArray(), encoding);
     }
 
-    private static void writeEncodedBook(char[] book, Map<String, String> encoding) {
+    private static void writeEncodedBook(char[] book, Map<String, String> encoding, String name, String pathToOutput) {
         String[] encoded = new String[book.length];
         int index = 0;
         for (char c : book) {
@@ -47,15 +78,22 @@ public class huffC {
         }
         String[] encodedJoined = String.join("", encoded).split("(?<=\\G.{" + 8 + "})");
         byte[] binaryData = toByteArray(String.join(" ", encodedJoined));
-        // String encodedData = Base64.getEncoder().encodeToString(binaryData);
+
         try {
-            // FileWriter fileWriter = new FileWriter("encoded_book.txt");
-            // fileWriter.write(encodedData);
-            // fileWriter.close();
-            FileOutputStream fileOutputStream = new FileOutputStream("encoded_book.txt");
-            fileOutputStream.write(binaryData);
-            fileOutputStream.close();
-            System.out.println("Successfully wrote to the file.");
+            if (!pathToOutput.isEmpty()) {
+                File theDir = new File(pathToOutput);
+                if (!theDir.exists()) {
+                    theDir.mkdirs();
+                }
+                FileOutputStream fileOutputStream = new FileOutputStream(pathToOutput + "\\" + name + ".huff");
+                fileOutputStream.write(binaryData);
+                fileOutputStream.close();
+            } else {
+                FileOutputStream fileOutputStream = new FileOutputStream(name + ".huff");
+                fileOutputStream.write(binaryData);
+                fileOutputStream.close();
+            }
+            System.out.printf("Successfully wrote the compressed %s file.\n", name);
         } catch (IOException e) {
             System.out.println("An error occurred.");
             e.printStackTrace();
