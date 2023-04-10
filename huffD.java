@@ -10,6 +10,11 @@ import java.util.Scanner;
 
 public class huffD {
     public static void main(String[] args) throws IOException {
+        if (args.length == 0) {
+            System.out.println(
+                    "Please input a path to a file or directory to be decompressed.");
+            System.exit(1);
+        }
         File encodingTxt = new File("encoding.txt");
         Map<String, String> encoding = new HashMap<>();
 

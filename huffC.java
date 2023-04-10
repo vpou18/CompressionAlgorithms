@@ -8,6 +8,11 @@ import java.util.Scanner;
 
 public class huffC {
     public static void main(String[] args) throws FileNotFoundException {
+        if (args.length == 0) {
+            System.out.println(
+                    "Please input a path to a file or directory to be compressed.");
+            System.exit(1);
+        }
         String pathToFile = args[0];
         String pathToOutput = "";
         if (args.length > 1) {

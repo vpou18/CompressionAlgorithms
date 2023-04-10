@@ -30,6 +30,11 @@ class Pair<F, S> {
 
 class HuffCode {
     public static void main(String[] args) throws FileNotFoundException {
+        if (args.length == 0) {
+            System.out.println(
+                    "Please input a path to a file or directory to generate an encoding.");
+            System.exit(1);
+        }
         Map<String, Integer> dictionary = new HashMap<>();
 
         String pathToFile = args[0];
