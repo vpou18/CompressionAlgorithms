@@ -36,7 +36,6 @@ public class Digr1024D {
             FileInputStream fileInputStream = new FileInputStream(book);
             String decodedBinaryString = toBinaryString(fileInputStream.readAllBytes());
             fileInputStream.close();
-            System.out.println(decodedBinaryString);
             writeDecodedBook(decodedBinaryString, dict, outputFilePath);
         }
         catch (IOException e) {
