@@ -53,13 +53,13 @@ public class lzwD {
         int dictSize = 256;
         StringBuilder sb = new StringBuilder();
 
-        boolean lastFlushed = false;
-
         int currentBit = 0;
         int newCode = getNextCode(encodedBinaryString, currentBit, binarySize);
         currentBit += binarySize;
         sb.append(table.get(newCode));
         int oldCode = newCode;
+        String oldTranslation = table.get(oldCode);
+
 
         while (currentBit + binarySize <= encodedBinaryString.length()) {
             newCode = getNextCode(encodedBinaryString, currentBit, binarySize);
@@ -71,7 +71,7 @@ public class lzwD {
                 table = initializeTable();
                 binarySize = 9;
                 dictSize = 256;
-                lastFlushed = true;
+                oldTranslation = "";
                 continue;
             }
             if (newCode == 1) //Increasing Length Of Code
@@ -80,7 +80,6 @@ public class lzwD {
                 continue;
             }
             String s;
-            String oldTranslation = table.getOrDefault(oldCode, "");
 
             if (!table.containsKey(newCode))
                 s = oldTranslation + oldTranslation.charAt(0);
@@ -88,12 +87,14 @@ public class lzwD {
                 s = table.get(newCode);
 
             sb.append(s);
-            if (dictSize < maxDictSize && !table.containsKey(oldTranslation + s.charAt(0))) {
+            if (dictSize < maxDictSize && oldTranslation.length() != 0) {
                 table.put(dictSize, oldTranslation + s.charAt(0));
                 dictSize++;
             }
 
             oldCode = newCode;
+            oldTranslation = table.get(oldCode);
+
         }
 
         return sb.toString();

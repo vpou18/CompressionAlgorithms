@@ -9,7 +9,7 @@ import java.util.Queue;
 
 class lzwC {
     static final int bmax = 16;
-    static final double minCompRatio = 1.0;
+    static final double minCompRatio = 2.0;
     static final int maxDictSize = (int) Math.pow(2, bmax);
     static final int queueMaxLength = 50;
 
