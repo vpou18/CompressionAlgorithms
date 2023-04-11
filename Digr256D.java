@@ -1,51 +1,47 @@
-
 import java.io.*;
 import java.nio.file.*;
 import java.util.*;
 public class Digr256D {
+    static final String typeEncoding = "Digr256";
+    static final int binarySize = 8;
     public static void main(String[] args) throws Exception{
-        File Digr256 = new File("Digr256.txt");
-        if(Files.notExists(Paths.get(args[0])) || Files.notExists(Paths.get("Digr256.txt"))){
+        if (args.length == 0) {
+            System.out.println(
+                    "Please input a path to a file to be decompressed.");
+            System.exit(1);
+        }
+        if(Files.notExists(Paths.get(args[0])) || Files.notExists(Paths.get(typeEncoding + ".txt"))){
             System.out.println("Error: Issue with arguments!");
             System.exit(1);
         }
+        File digr = new File(typeEncoding + ".txt");
+
+        String inputFilePath = args[0];
+        String outputFilePath = args[0].substring(0, args[0].length() - 7);
 
         Map<String, String> dict = new HashMap<>();
 
-        Scanner reader = new Scanner(Digr256);
+        Scanner reader = new Scanner(digr);
         while (reader.hasNext()) {
             String[] current = reader.nextLine().split("\t");
             if(current.length > 1){
                 dict.put(current[0], current[1]);
             }
         }
-        dict.put("00000000", "\n");
+        dict.put("00000000", "\n"); //Manually Adding newline
         reader.close();
 
-        String name = args[0].substring(0,args[0].length()-8);
-        String path = name.substring(0,5);
-        name = name.substring(6,name.length());
         try {
-            File book = new File(args[0]);
+            File book = new File(inputFilePath);
             FileInputStream fileInputStream = new FileInputStream(book);
             String decodedBinaryString = toBinaryString(fileInputStream.readAllBytes());
             fileInputStream.close();
-            writeDecodedBook(decodedBinaryString, dict, name, path);
-        } catch (IOException e) {
-            try {
-                File dir = new File(args[0]);
-
-                FileInputStream fileInputStream = new FileInputStream(dir);
-                String decodedBinaryString = toBinaryString(fileInputStream.readAllBytes());
-                fileInputStream.close();
-                System.out.println(decodedBinaryString);
-                writeDecodedBook(decodedBinaryString, dict, name, path);
-
-            } catch (FileNotFoundException f) {
-                System.out.println(
-                        "The file or directory you passed to be decompressed hasn't been found. Please make sure the file exists and that the path to the file is correct");
-                System.exit(1);
-            }
+            System.out.println(decodedBinaryString);
+            writeDecodedBook(decodedBinaryString, dict, outputFilePath);
+        }
+        catch (IOException e) {
+            System.out.println("An error occurred.");
+            e.printStackTrace();
         }
 
     }
@@ -54,9 +50,8 @@ public class Digr256D {
     {
         return book.substring(currentBit, currentBit + binarySize);
     }
-    private static void writeDecodedBook(String book, Map<String, String> encoding, String name, String pathToOutput) {
+    private static void writeDecodedBook(String book, Map<String, String> encoding, String outputFilePath) {
         StringBuilder sb = new StringBuilder();
-        int binarySize = 8;
         int currentBit = 0;
         while (currentBit + binarySize <= book.length())
         {
@@ -67,16 +62,10 @@ public class Digr256D {
         }
 
         try {
-            if (!pathToOutput.isEmpty()) {
-                File theDir = new File(pathToOutput);
-                if (!theDir.exists()) {
-                    theDir.mkdirs();
-                }
-            }
-            FileWriter myWriter = new FileWriter(pathToOutput + "//" + name + ".txt");
+            FileWriter myWriter = new FileWriter(outputFilePath);
             myWriter.write(sb.toString());
             myWriter.close();
-            System.out.printf("Successfully wrote the decompressed %s file.\n", name);
+            System.out.printf("Successfully wrote the decompressed file to: %s\n", outputFilePath);
         } catch (IOException e) {
             System.out.println("An error occurred.");
             e.printStackTrace();
