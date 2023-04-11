@@ -32,16 +32,20 @@ public class huffC {
         try {
             File book = new File(pathToFile);
             scanner = new Scanner(book);
-            String bookString = "";
+            StringBuilder bookString = new StringBuilder();
             while (scanner.hasNext()) {
                 String current = scanner.nextLine();
-                bookString += current;
+                bookString.append(current);
                 if (scanner.hasNext()) {
-                    bookString += "\n";
+                    bookString.append("\n");
                 }
             }
             scanner.close();
-            writeEncodedBook(bookString.toCharArray(), encoding, book.getName().split("\\.")[0], pathToOutput);
+            long startTime = System.currentTimeMillis();
+            writeEncodedBook(bookString.toString().toCharArray(), encoding, book.getName().split("\\.")[0],
+                    pathToOutput);
+            double timeTaken = (System.currentTimeMillis() - startTime) / 1000.0;
+            System.out.println("The time taken to compress " + book.getName() + " is " + timeTaken);
         } catch (FileNotFoundException e) {
             try {
                 File dir = new File(pathToFile);
@@ -49,17 +53,19 @@ public class huffC {
                 if (directoryListing != null) {
                     for (File child : directoryListing) {
                         scanner = new Scanner(child);
-                        String bookString = "";
+                        StringBuilder bookString = new StringBuilder();
                         while (scanner.hasNext()) {
                             String current = scanner.nextLine();
-                            bookString += current;
+                            bookString.append(current);
                             if (scanner.hasNext()) {
-                                bookString += "\n";
+                                bookString.append("\n");
                             }
                         }
-                        scanner.close();
-                        writeEncodedBook(bookString.toCharArray(), encoding, child.getName().split("\\.")[0],
+                        long startTime = System.currentTimeMillis();
+                        writeEncodedBook(bookString.toString().toCharArray(), encoding, child.getName().split("\\.")[0],
                                 pathToOutput);
+                        double timeTaken = (System.currentTimeMillis() - startTime) / 1000.0;
+                        System.out.println("The time taken to compress " + child.getName() + " is " + timeTaken);
                     }
                 }
             } catch (FileNotFoundException f) {

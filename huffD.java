@@ -36,7 +36,10 @@ public class huffD {
             FileInputStream fileInputStream = new FileInputStream(book);
             String decodedBinaryString = toBinaryString(fileInputStream.readAllBytes());
             fileInputStream.close();
+            long startTime = System.currentTimeMillis();
             writeDecodedBook(decodedBinaryString, encoding, book.getName().split("\\.")[0], pathToOutput);
+            double timeTaken = (System.currentTimeMillis() - startTime) / 1000.0;
+            System.out.println("The time taken to compress " + book.getName() + " is " + timeTaken);
         } catch (IOException e) {
             try {
                 File dir = new File(pathToFile);
@@ -46,7 +49,10 @@ public class huffD {
                         FileInputStream fileInputStream = new FileInputStream(child);
                         String decodedBinaryString = toBinaryString(fileInputStream.readAllBytes());
                         fileInputStream.close();
+                        long startTime = System.currentTimeMillis();
                         writeDecodedBook(decodedBinaryString, encoding, child.getName().split("\\.")[0], pathToOutput);
+                        double timeTaken = (System.currentTimeMillis() - startTime) / 1000.0;
+                        System.out.println("The time taken to decompress " + child.getName() + " is " + timeTaken);
                     }
                 }
             } catch (FileNotFoundException f) {
