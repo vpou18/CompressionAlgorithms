@@ -1,7 +1,7 @@
 import java.io.*;
 import java.nio.file.*;
 import java.util.*;
-class DigrCode {
+public class DigrCode {
     public static void main(String[] args) throws Exception{
         if(args.length < 2 || Integer.parseInt(args[0]) < 105){
             System.out.println("Error: Issue with arguments! The first argument indicates the " +
@@ -10,7 +10,7 @@ class DigrCode {
             System.exit(1);
         }
         try{
-            int dictSize = Integer.parseInt(args[0]);
+            Integer.parseInt(args[0]);
         }
         catch(IllegalArgumentException e){
             System.out.println(e + "\n" + "Issue with arguments! The first argument indicates the " +
@@ -34,21 +34,32 @@ class DigrCode {
         for(String uni:freq[0].keySet()){
             orderedDigr.add(uni);
         }
-        for(String bi:filter(freq[1], dictSize - freq[0].keySet().size())){
-            orderedDigr.add(bi);
+        List<String> filt = filter(freq[1], dictSize - freq[0].keySet().size());
+        if(filt != null){
+            for(String bi:filt){
+                orderedDigr.add(bi);
+            }
         }
         List<String[]> digr = (encoding(orderedDigr,dictSize));
+        String outText = "";
         for (String[] bin:digr) {
+            outText += bin[1] + "\t" + bin[0] + "\n";
             System.out.println(bin[1] + "\t" + bin[0]);
         }
+        try {
+            FileWriter dXXX = new FileWriter("Digr" + dictSize + ".txt");
+            dXXX.write(outText);
+            dXXX.close();
+          } catch (IOException e) {
+            System.out.println("An error occurred.");
+            e.printStackTrace();
+          }
     }
 
     public static String readBook(String[] books) throws Exception{
         String data = "";
         for(int k = 0;k < books.length;k++){
-
             data += new String(Files.readAllBytes(Paths.get(books[k])));
-
         }
         return data;
     }
@@ -156,11 +167,33 @@ class DigrCode {
 
     public static List encoding(List<String> source, int size){
         List<String[]> encoded = new ArrayList<String[]>();
-        for(int i = 0;i < size;i++){
-            String[] bin = {source.get(i), String.format("%08d", Integer.parseInt(Integer.toString(i, 2), 10))};
-            encoded.add(bin);
+        if(size <= 256){
+            for(int i = 0;i < size;i++){
+                String[] bin = {source.get(i), String.format("%08d", Integer.parseInt(Integer.toString(i, 2), 10))};
+                encoded.add(bin);
+            }
+            return encoded;
         }
-        return encoded;
+        else if(size > 256 && size <= 512){
+            for(int i = 0;i < size;i++){
+                String[] bin = {source.get(i), String.format("%09d", Integer.parseInt(Integer.toString(i, 2), 10))};
+                encoded.add(bin);
+            }
+            return encoded;
+        }
+        else if(size > 512 && size <= 1024){
+            for(int i = 0;i < size;i++){
+                String[] bin = {source.get(i), String.format("%010d", Integer.parseInt(Integer.toString(i, 2), 10))};
+                encoded.add(bin);
+            }
+            return encoded;
+        }
+        else{
+            System.out.println("Error: Too big of a requested dictionary size! It must be " +
+            "smaller than 1024");
+            System.exit(1);
+            return null;
+        }
     }
 
 }
