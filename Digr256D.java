@@ -32,33 +32,17 @@ public class Digr256D {
         String bookString = "";
         while (scanner.hasNext()) {
             bookString += scanner.nextLine();
-            // System.out.println(current[0]);
             if (scanner.hasNext()) {
                 sb.append("\n");
             }
         }
-        bookString = sb.toString();
         scanner.close();
-        String bitted = "";
-        for(int i =0;i<bookString.length();i++){
-            char curr = bookString.charAt(i);
-            String a = null;
-            if(i+1 < bookString.length()){
-                char next = bookString.charAt(i+1);
-                a = "" + curr + next;
-            }
-            if(dict.get(a) != null){
-                bitted += dict.get(a);
-            }
-            else{
-                bitted += dict.get("" + curr);
-            }
-        }
+    
         String name = args[0].substring(0,args[0].length()-8);
         String path = name.substring(0,5);
         name = name.substring(6,name.length());
         System.out.println(path);
-        writeDecodedBook(bitted, dict, name, path);
+        writeDecodedBook(bookString, dict, name, path);
     }
     private static void writeDecodedBook(String book, Map<String, String> encoding, String name, String pathToOutput) {
         String[] decoded = new String[book.length()];
