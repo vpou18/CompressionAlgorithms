@@ -28,7 +28,7 @@ public class Digr256D {
                 dict.put(current[0], current[1]);
             }
         }
-        dict.put("00000000", "\n"); //Manually Adding newline
+        dict.put(String.format("%0" + binarySize + "d", 0), "\n"); //Manually Adding newline
         reader.close();
 
         try {

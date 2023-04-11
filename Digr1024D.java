@@ -17,7 +17,7 @@ public class Digr1024D {
         File digr = new File(typeEncoding + ".txt");
 
         String inputFilePath = args[0];
-        String outputFilePath = args[0].substring(0, args[0].length() - 7);
+        String outputFilePath = args[0].substring(0, args[0].length() - 8);
 
         Map<String, String> dict = new HashMap<>();
 
@@ -28,7 +28,7 @@ public class Digr1024D {
                 dict.put(current[0], current[1]);
             }
         }
-        dict.put("00000000", "\n"); //Manually Adding newline
+        dict.put(String.format("%0" + binarySize + "d", 0), "\n"); //Manually Adding newline
         reader.close();
 
         try {

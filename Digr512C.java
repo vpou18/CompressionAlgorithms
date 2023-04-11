@@ -30,7 +30,7 @@ public class Digr512C {
                 dict.put(current[1], current[0]);
             }
         }
-        dict.put("\n", "00000000"); //Manually Adding newLine Character
+        dict.put("\n", String.format("%0" + binaryLength + "d", 0)); //Manually Adding newLine Character
         reader.close();
 
         File book = new File(args[0]);
@@ -55,7 +55,7 @@ public class Digr512C {
 
 
     private static void writeEncodedBook(char[] book, Map<String, String> encoding, String outputFilePath) {
-        List<String> encoded = new ArrayList<>();
+        StringBuilder sb = new StringBuilder();
         for(int i =0;i< book.length;i++){
             char curr = book[i];
             if (notInRange(curr))
@@ -72,16 +72,16 @@ public class Digr512C {
                 String posDi = curr + "" + next;
                 if(encoding.containsKey(posDi))
                 {
-                    encoded.add(encoding.get(posDi));
+                    sb.append(encoding.get(posDi));
                     i = j;
                     continue;
                 }
             }
 
             String a = "" + curr;
-            encoded.add(encoding.get(a));
+            sb.append(encoding.get(a));
         }
-        String[] encodedJoined = String.join("", encoded).split("(?<=\\G.{" + 8 + "})");
+        String[] encodedJoined = sb.toString().split("(?<=\\G.{" + 8 + "})");
         byte[] binaryData = toByteArray(String.join(" ", encodedJoined));
         try {
             FileOutputStream fileOutputStream = new FileOutputStream(outputFilePath);
