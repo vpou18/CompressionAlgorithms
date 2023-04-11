@@ -15,10 +15,13 @@ public class Digr256C {
         while (reader.hasNext()) {
             String[] current = reader.nextLine().split("\t");
             if(current.length > 1){
-                dict.put(current[1],current[0]);
+                dict.put(current[1], current[0]);
             }
         }
+        dict.put("\n", "00000000");
         reader.close();
+
+
         File book = new File(args[0]);
         Scanner scanner = new Scanner(book);
         String bookString = "";
@@ -35,27 +38,39 @@ public class Digr256C {
         writeEncodedBook(bookString.toCharArray(), dict, name, path);
 
     }
+
+    private static boolean notInRange(char c)
+    {
+        return c != 9 && c != 10 && !(c >= 32 && c <= 126);
+    }
+
+
     private static void writeEncodedBook(char[] book, Map<String, String> encoding, String name, String pathToOutput) {
         List<String> encoded = new ArrayList<>();
-
         for(int i =0;i< book.length;i++){
             char curr = book[i];
+            if (notInRange(curr))
+            {
+                continue;
+            }
+            int j = i + 1;
+            while(j<book.length &&notInRange(book[j]))
+                j++;
+
+            if (j<book.length)
+            {
+                char next = book[j];
+                String posDi = curr + "" + next;
+                if(encoding.containsKey(posDi))
+                {
+                    encoded.add(encoding.get(posDi));
+                    i = j;
+                    continue;
+                }
+            }
+
             String a = "" + curr;
-            if(i+1 < book.length){
-                char next = book[i+1];
-                a += next;
-            }
-            if(encoding.get(a) != null){
-                encoded.add(encoding.get(a));
-            }
-            else{
-                if(encoding.get("" + curr) == null){
-                    encoded.add(encoding.get("@"));
-                }
-                else{
-                    encoded.add(encoding.get("" + curr));
-                }
-            }
+            encoded.add(encoding.get(a));
         }
         String[] encodedJoined = String.join("", encoded).split("(?<=\\G.{" + 8 + "})");
         byte[] binaryData = toByteArray(String.join(" ", encodedJoined));

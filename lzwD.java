@@ -67,7 +67,7 @@ public class lzwD {
 
             if (newCode == 0) //Flushing the table
             {
-                System.out.println("Flushing HAPPENED");
+                //System.out.println("Flushing HAPPENED");
                 table = initializeTable();
                 binarySize = 9;
                 dictSize = 256;
