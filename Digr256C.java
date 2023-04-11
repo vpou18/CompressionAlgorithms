@@ -5,9 +5,7 @@ public class Digr256C {
     public static void main(String[] args) throws Exception{
         File Digr256 = new File("Digr256.txt");
         if(Files.notExists(Paths.get(args[0])) || Files.notExists(Paths.get("Digr256.txt"))){
-            System.out.println("Error: Issue with arguments! The first argument indicates the " +
-            "size of the dictionary(must be >=96) and all arguments after must " +
-            "be paths to txt files to be encoded.");
+            System.out.println("Error: Issue with arguments!");
             System.exit(1);
         }
 
@@ -30,12 +28,9 @@ public class Digr256C {
                 bookString += "\n";
             }
         }
-        for(String j:dict.keySet()){
-            System.out.println(j);
-        }
         scanner.close();
         String name = args[0].substring(0,args[0].length()-4);
-        String path = name.substring(0,4);
+        String path = name.substring(0,5);
         name = name.substring(6,name.length());
         writeEncodedBook(bookString.toCharArray(), dict, name, path);
 

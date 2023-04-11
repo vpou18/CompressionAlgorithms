@@ -6,43 +6,48 @@ public class Digr256D {
     public static void main(String[] args) throws Exception{
         File Digr256 = new File("Digr256.txt");
         if(Files.notExists(Paths.get(args[0])) || Files.notExists(Paths.get("Digr256.txt"))){
-            System.out.println("Error: Issue with arguments! The first argument indicates the " +
-            "size of the dictionary(must be >=96) and all arguments after must " +
-            "be paths to txt files to be encoded.");
+            System.out.println("Error: Issue with arguments!");
             System.exit(1);
         }
 
         Map<String, String> dict = new HashMap<>();
-        
+
         Scanner reader = new Scanner(Digr256);
-        StringBuilder bb = new StringBuilder();
         while (reader.hasNext()) {
             String[] current = reader.nextLine().split("\t");
             if(current.length > 1){
                 dict.put(current[1],current[0]);
             }
-            if (reader.hasNext()) {
-                bb.append("\n");
-            }
         }
         reader.close();
-        File book = new File(args[0]);
-        Scanner scanner = new Scanner(book);
-        StringBuilder sb = new StringBuilder();
-        String bookString = "";
-        while (scanner.hasNext()) {
-            bookString += scanner.nextLine();
-            if (scanner.hasNext()) {
-                sb.append("\n");
-            }
-        }
-        scanner.close();
     
         String name = args[0].substring(0,args[0].length()-8);
         String path = name.substring(0,5);
         name = name.substring(6,name.length());
-        System.out.println(path);
-        writeDecodedBook(bookString, dict, name, path);
+        try {
+            File book = new File(args[0]);
+            FileInputStream fileInputStream = new FileInputStream(book);
+            String decodedBinaryString = toBinaryString(fileInputStream.readAllBytes());
+            fileInputStream.close();
+            System.out.println(decodedBinaryString);
+            writeDecodedBook(decodedBinaryString, dict, name, path);
+        } catch (IOException e) {
+            try {
+                File dir = new File(args[0]);
+
+                FileInputStream fileInputStream = new FileInputStream(dir);
+                String decodedBinaryString = toBinaryString(fileInputStream.readAllBytes());
+                fileInputStream.close();
+                System.out.println(decodedBinaryString);
+                writeDecodedBook(decodedBinaryString, dict, name, path);
+                
+            } catch (FileNotFoundException f) {
+                System.out.println(
+                        "The file or directory you passed to be decompressed hasn't been found. Please make sure the file exists and that the path to the file is correct");
+                System.exit(1);
+            }
+        }
+
     }
     private static void writeDecodedBook(String book, Map<String, String> encoding, String name, String pathToOutput) {
         String[] decoded = new String[book.length()];
@@ -64,6 +69,7 @@ public class Digr256D {
                 end += 1;
             }
         }
+
         String[] toWriteFinal = Arrays.copyOfRange(decoded, 0, i);
         try {
             if (!pathToOutput.isEmpty()) {
