@@ -9,7 +9,7 @@ import java.util.Queue;
 
 class lzwC {
     static final int bmax = 16;
-    static final double minCompRatio = 1.5;
+    static final double minCompRatio = 1.0;
     static final int maxDictSize = (int) Math.pow(2, bmax);
     static final int queueMaxLength = 50;
 
@@ -19,14 +19,14 @@ class lzwC {
                     "Please input a path to a file to be compressed.");
             System.exit(1);
         }
-        String pathToFile = args[0];
-        String pathToOutput = args[0] + ".lzw";
+        String inputFilePath = args[0];
+        String outputFilePath = args[0] + ".lzw";
         if (args.length > 1) {
-            //Second Argument might be used to specify output file
-            pathToOutput = args[1];
+            //Second Argument might be used to specify output file path
+            outputFilePath = args[1];
         }
         try {
-            File book = new File(pathToFile);
+            File book = new File(inputFilePath);
             Scanner scanner = new Scanner(book);
             StringBuilder sb = new StringBuilder();
             String bookString = "";
@@ -39,7 +39,7 @@ class lzwC {
             }
             bookString = sb.toString();
             scanner.close();
-            writelzwCompressedBook(bookString.toCharArray(), pathToOutput);
+            writelzwCompressedBook(bookString.toCharArray(), outputFilePath);
         }
         catch (FileNotFoundException e)
         {
@@ -51,16 +51,16 @@ class lzwC {
 
     }
 
-    private static void writelzwCompressedBook(char[] book, String pathToOutput) throws FileNotFoundException{
+    private static void writelzwCompressedBook(char[] book, String outputFilePath) throws FileNotFoundException{
         String encodedBook = getlzwEncoding(book);
         String[] encodedJoined = encodedBook.split("(?<=\\G.{" + 8 + "})");
         byte[] binaryData = toByteArray(String.join(" ", encodedJoined));
 
         try {
-            FileOutputStream fileOutputStream = new FileOutputStream(pathToOutput);
+            FileOutputStream fileOutputStream = new FileOutputStream(outputFilePath);
             fileOutputStream.write(binaryData);
             fileOutputStream.close();
-            System.out.printf("Successfully wrote the compressed file at: %s\n", pathToOutput);
+            System.out.printf("Successfully wrote the compressed file at: %s\n", outputFilePath);
         }
         catch (IOException e) {
             System.out.println("An error occurred.");
@@ -83,7 +83,7 @@ class lzwC {
         HashMap<String, Integer> table = initializeTable();
         int totalEncodedCharacters = 0;
 
-        int binarySize = 8;
+        int binarySize = 9;
         int dictSize = 256;
         StringBuilder sb = new StringBuilder();
         String currentString = "";
@@ -122,7 +122,7 @@ class lzwC {
 
                     //Re-initialize all values
                     table = initializeTable();
-                    binarySize = 8;
+                    binarySize = 9;
                     dictSize = 256;
                     totalEncodedCharacters = 0;
                     queue = new LinkedList<>();
@@ -133,6 +133,7 @@ class lzwC {
 
         }
         addCodeWord(sb, table.get(currentString), binarySize);
+        addCodeWord(sb, 0, binarySize); //For Flushing Purposes
         return sb.toString();
     }
 
