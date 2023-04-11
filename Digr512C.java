@@ -35,13 +35,15 @@ public class Digr512C {
 
         File book = new File(args[0]);
         Scanner scanner = new Scanner(book);
+        StringBuilder sb = new StringBuilder();
         String bookString = "";
         while (scanner.hasNext()) {
-            bookString += scanner.nextLine();
+            sb.append(scanner.nextLine());
             if (scanner.hasNext()) {
-                bookString += "\n";
+                sb.append("\n");
             }
         }
+        bookString = sb.toString();
         scanner.close();
 
         writeEncodedBook(bookString.toCharArray(), dict, outputFilePath);
