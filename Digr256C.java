@@ -1,22 +1,22 @@
 import java.io.*;
 import java.nio.file.*;
 import java.util.*;
+
 public class Digr256C {
     static final String typeEncoding = "Digr256";
     static final int binaryLength = 8;
-    public static void main(String[] args) throws Exception{
-        if(args.length < 1)
-        {
+
+    public static void main(String[] args) throws Exception {
+        if (args.length < 1) {
             System.out.println(
                     "Please input a path to a file to be compressed.");
             System.exit(1);
         }
-        if(Files.notExists(Paths.get(args[0])) || Files.notExists(Paths.get(typeEncoding + ".txt"))){
+        if (Files.notExists(Paths.get(args[0])) || Files.notExists(Paths.get(typeEncoding + ".txt"))) {
             System.out.println("Error: Issue with arguments!");
             System.exit(1);
         }
         File digr = new File(typeEncoding + ".txt");
-
 
         String inputFilePath = args[0];
         String outputFilePath = args[0] + "." + typeEncoding;
@@ -26,11 +26,11 @@ public class Digr256C {
         Scanner reader = new Scanner(digr);
         while (reader.hasNext()) {
             String[] current = reader.nextLine().split("\t");
-            if(current.length > 1){
+            if (current.length > 1) {
                 dict.put(current[1], current[0]);
             }
         }
-        dict.put("\n", String.format("%0" + binaryLength + "d", 0)); //Manually Adding newLine Character
+        dict.put("\n", String.format("%0" + binaryLength + "d", 0)); // Manually Adding newLine Character
         reader.close();
 
         File book = new File(args[0]);
@@ -45,35 +45,31 @@ public class Digr256C {
         }
         bookString = sb.toString();
         scanner.close();
-
+        long startTime = System.currentTimeMillis();
         writeEncodedBook(bookString.toCharArray(), dict, outputFilePath);
-
+        double timeTaken = (System.currentTimeMillis() - startTime) / 1000.0;
+        System.out.println("The time taken to compress " + book.getName() + " is " + timeTaken);
     }
 
-    private static boolean notInRange(char c)
-    {
+    private static boolean notInRange(char c) {
         return c != 9 && c != 10 && !(c >= 32 && c <= 126);
     }
 
-
     private static void writeEncodedBook(char[] book, Map<String, String> encoding, String outputFilePath) {
         StringBuilder sb = new StringBuilder();
-        for(int i =0;i< book.length;i++){
+        for (int i = 0; i < book.length; i++) {
             char curr = book[i];
-            if (notInRange(curr))
-            {
+            if (notInRange(curr)) {
                 continue;
             }
             int j = i + 1;
-            while(j<book.length &&notInRange(book[j]))
+            while (j < book.length && notInRange(book[j]))
                 j++;
 
-            if (j<book.length)
-            {
+            if (j < book.length) {
                 char next = book[j];
                 String posDi = curr + "" + next;
-                if(encoding.containsKey(posDi))
-                {
+                if (encoding.containsKey(posDi)) {
                     sb.append(encoding.get(posDi));
                     i = j;
                     continue;
@@ -90,8 +86,7 @@ public class Digr256C {
             fileOutputStream.write(binaryData);
             fileOutputStream.close();
             System.out.printf("Successfully wrote the compressed file to: %s\n", outputFilePath);
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             System.out.println("An error occurred.");
             e.printStackTrace();
         }
@@ -106,4 +101,3 @@ public class Digr256C {
         return data;
     }
 }
-

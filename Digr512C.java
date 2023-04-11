@@ -46,7 +46,10 @@ public class Digr512C {
         bookString = sb.toString();
         scanner.close();
 
+        long startTime = System.currentTimeMillis();
         writeEncodedBook(bookString.toCharArray(), dict, outputFilePath);
+        double timeTaken = (System.currentTimeMillis() - startTime) / 1000.0;
+        System.out.println("The time taken to compress " + book.getName() + " is " + timeTaken);
 
     }
 

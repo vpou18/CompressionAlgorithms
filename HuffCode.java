@@ -67,25 +67,27 @@ class HuffCode {
             }
         } catch (FileNotFoundException e) {
             try {
-                File file = new File(pathToFile);
-                Scanner sc = new Scanner(file);
-                while (sc.hasNextLine()) {
-                    for (Character c : sc.nextLine().toCharArray()) {
-                        String curr = c + "";
-                        if (!(c > 32 && c < 128)) {
-                            curr = String.valueOf(Integer.valueOf(c));
+                for (int i = 0; i < args.length; i++) {
+                    File file = new File(args[i]);
+                    Scanner sc = new Scanner(file);
+                    while (sc.hasNextLine()) {
+                        for (Character c : sc.nextLine().toCharArray()) {
+                            String curr = c + "";
+                            if (!(c > 32 && c < 128)) {
+                                curr = String.valueOf(Integer.valueOf(c));
+                            }
+                            if (!dictionary.containsKey(curr)) {
+                                dictionary.put(curr, 0);
+                            }
+                            dictionary.put(curr, dictionary.get(curr) + 1);
                         }
-                        if (!dictionary.containsKey(curr)) {
-                            dictionary.put(curr, 0);
+                        if (sc.hasNextLine()) {
+                            dictionary.put(String.valueOf(Integer.valueOf('\n')),
+                                    dictionary.get(String.valueOf(Integer.valueOf('\n'))) + 1);
                         }
-                        dictionary.put(curr, dictionary.get(curr) + 1);
                     }
-                    if (sc.hasNextLine()) {
-                        dictionary.put(String.valueOf(Integer.valueOf('\n')),
-                                dictionary.get(String.valueOf(Integer.valueOf('\n'))) + 1);
-                    }
+                    sc.close();
                 }
-                sc.close();
             } catch (FileNotFoundException f) {
                 System.out.println(
                         "The file or directory you passed to for dictionary generation hasn't been found. Please make sure the file exists and that the path to the file is correct");

@@ -36,7 +36,10 @@ public class Digr256D {
             FileInputStream fileInputStream = new FileInputStream(book);
             String decodedBinaryString = toBinaryString(fileInputStream.readAllBytes());
             fileInputStream.close();
+            long startTime = System.currentTimeMillis();
             writeDecodedBook(decodedBinaryString, dict, outputFilePath);
+            double timeTaken = (System.currentTimeMillis() - startTime) / 1000.0;
+            System.out.println("The time taken to compress " + book.getName() + " is " + timeTaken);
         }
         catch (IOException e) {
             System.out.println("An error occurred.");

@@ -46,8 +46,10 @@ public class Digr1024C {
         bookString = sb.toString();
         scanner.close();
 
+        long startTime = System.currentTimeMillis();
         writeEncodedBook(bookString.toCharArray(), dict, outputFilePath);
-
+        double timeTaken = (System.currentTimeMillis() - startTime) / 1000.0;
+        System.out.println("The time taken to compress " + book.getName() + " is " + timeTaken);
     }
 
     private static boolean notInRange(char c)
